@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+import subprocess
+import os
+import sys
+import shutil
+
+build_inst_fuzzing_driver='''
+    clang++-12 \
+    new_fuzzing_driver.cc \
+    ./blosc/libblosc2.a \
+    -I../include \
+    -fsanitize=fuzzer,address \
+    -fprofile-instr-generate -fcoverage-mapping \
+    -o new_fuzzing_driver -g -O0"
+'''
+
+def get_parent_dir():
+    return 'new_c-blosc2'
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("./analyze_cov INPUT_DIR(reproducible bytes) OUTPUT_DIR");
+        sys.exit()
+
+    TARGET_DIR = sys.argv[1] if sys.argv[1][-1] == '/' else sys.argv[1] + '/'
+    assert os.path.isdir(TARGET_DIR), 'Wrong INPUT DIRECTORY'
+    OUTPUT_DIR = sys.argv[2] if sys.argv[2][-1] == '/' else sys.argv[2] + '/'
+    assert not(os.path.exists(OUTPUT_DIR)), 'Already OUTPUT DIRECTORY exists'
+    os.mkdir(OUTPUT_DIR)
+
+    project = get_parent_dir()
+    subprocess.run(['rm', '-f', '*.json', 'fuzz_exec', 'fuzz_write', 'crash-*', 'leak-*'])
+    subprocess.run(['docker', 'run', '-t', '-d', '--name', f'{project}', '-v', '.:/tmp', f'sb_{project}', '/bin/bash'])
+
+    subprocess.run(['docker', 'exec', '-w', '/new_fuzzing_driver/c-blosc2/build_cov', f'{project}', 'sh', '-c', f'{build_inst_fuzzing_driver}'])
+
+    BYTE_FILES = os.listdir(TARGET_DIR)
+    for BYTE_FILE in BYTE_FILES:
+        BYTE_PATH = TARGET_DIR + BYTE_FILE
+        subprocess.run(['docker', 'exec', '-w', '/new_fuzzing_driver/c-blosc2/build_cov', f'{project}', 'sh', '-c', f'LLVM_PROFILE_FILE={BYTE_FILE}.profraw ASAN_OPTIONS=detect_leaks=0 ./new_fuzzing_driver /tmp/{BYTE_PATH}'])
+
+    subprocess.run(['docker', 'exec', '-w', '/new_fuzzing_driver/c-blosc2/build_cov', f'{project}', 'sh', '-c', 'llvm-profdata-12 merge -sparse ./*.profraw -o merged.profdata'])
+
+    subprocess.run(['docker', 'exec', '-w', '/new_fuzzing_driver/c-blosc2/build_cov', f'{project}', 'sh', '-c', f'mv merged.profdata /tmp/{OUTPUT_DIR}'])
+
+    subprocess.run(['docker', 'exec', '-w', '/new_fuzzing_driver/c-blosc2/build_cov', f'{project}', 'bash', '-c', f'mv ./new_fuzzing_driver /tmp/{OUTPUT_DIR}new_fuzzing_driver'])
+
+    subprocess.run(['docker', 'kill', f'{project}'])
+    subprocess.run(['docker', 'rm', f'{project}'])
+

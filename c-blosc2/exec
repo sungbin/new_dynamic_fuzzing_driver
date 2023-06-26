@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PROJ="new_c-blosc2"
+
+docker run -it --name $PROJ -v .:/tmp sb_$PROJ /bin/bash
+
+docker kill $PROJ
+docker rm $PROJ

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+PROJ="new_c-blosc2"
+
+docker kill $PROJ
+docker rm $PROJ
+
+docker build .. -f ./Dockerfile -t sb_$PROJ
+docker run -t -d --name $PROJ -v .:/tmp sb_$PROJ
+
+rm -rf bin/
+mkdir bin/
+
+docker exec $PROJ cp ./new_fuzzing_driver /tmp/bin
