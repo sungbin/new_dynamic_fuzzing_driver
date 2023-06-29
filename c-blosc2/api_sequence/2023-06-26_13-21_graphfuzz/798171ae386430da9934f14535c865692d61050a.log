@@ -1,0 +1,5 @@
+DEBUG: API sequence length: 1 
+DEBUG: Selected API index 2 
+DEBUG:	 RUN (Constructor : Cframe)  -- : obj_0_idx: 1 
+DEBUG:		 Cframe(Cframes[1]) 
+DEBUG:	 DONE (Constructor : Cframe) 

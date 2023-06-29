@@ -42,7 +42,8 @@ RUN clang++-12 \
     ./blosc/libblosc2.a \
     -I../include \
     -fsanitize=fuzzer,address \
-    -o new_fuzzing_driver -g -O0
+    -o new_fuzzing_driver -g -O0 \
+    -DDEBUG
 
 # Build fuzzing driver with Instrumented library
 RUN cd ../build_cov && \
@@ -56,3 +57,5 @@ RUN cd ../build_cov && \
         -o new_fuzzing_driver -g -O0
 
 COPY c-blosc2/scripts/run_on_debug_mode.sh /new_fuzzing_driver/c-blosc2/build/run_on_debug_mode.sh 
+
+COPY c-blosc2/tests /new_fuzzing_driver/c-blosc2/driver_tests

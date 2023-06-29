@@ -1,0 +1,4 @@
+DEBUG: API sequence length: 6 
+DEBUG: Selected API index 12 
+DEBUG: Selected API index 5 
+DEBUG:	 RUN (Destructor : blosc2_schunk) 

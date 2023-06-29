@@ -1,0 +1,4 @@
+DEBUG: API sequence length: 5 
+DEBUG: Selected API index 10 
+DEBUG: Selected API index 7 
+DEBUG:	 RUN blosc2_schunk_to_buffer() 

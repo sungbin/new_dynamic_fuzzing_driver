@@ -7,4 +7,6 @@ ART_DIR="data/${CUR_TIME}_artifact"
 INTEREST_DIR="data/${CUR_TIME}_graphfuzz_bytes"
 mkdir $ART_DIR $INTEREST_DIR
 
-ASAN_OPTIONS=detect_leaks=0 bin/new_fuzzing_driver $INTEREST_DIR seeds -fork=1 -ignore_crashes=1 -artifact_prefix=$ART_DIR/ -max_total_time=56700
+ASAN_OPTIONS=detect_leaks=0 bin/new_fuzzing_driver $INTEREST_DIR seeds -fork=1 -ignore_crashes=1 -artifact_prefix=$ART_DIR/ -max_total_time=3600 | tee log
+
+#ASAN_OPTIONS=detect_leaks=0 bin/new_fuzzing_driver $INTEREST_DIR seeds -artifact_prefix=$ART_DIR/ -max_total_time=600 | tee log

@@ -21,9 +21,11 @@
 # define DEBUG_PRINT_ARRAY(_arr, _size) do {} while (0)
 #endif
 
-#define MAX_API_SEQ_LEN 8
-#define DEFINED_API_BLOCK_N 12
-#define BANK_EACH_OBJ_LEN 4
+#define MAX_API_SEQ_LEN 4
+#define DEFINED_API_BLOCK_N 4
+#define BANK_EACH_OBJ_LEN 2
+
+int table[MAX_API_SEQ_LEN] = {0, };
 
 typedef struct garbages {
     void *items[1000];
@@ -86,6 +88,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
 
   size_t api_seq_len = (size_t) provider.ConsumeIntegralInRange<uint8_t>(1, MAX_API_SEQ_LEN);
+  //size_t api_seq_len = 4;
   DEBUG_PRINT(("DEBUG: API sequence length: %zu \n", api_seq_len));
 
   
@@ -93,6 +96,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
      size_t selected = (size_t) provider.ConsumeIntegralInRange<uint8_t>(0, DEFINED_API_BLOCK_N);
      DEBUG_PRINT(("DEBUG: Selected API index %zu \n", selected));
+
+     if (i == selected) table[i] = 1;
      
      int ret;
      switch (selected) {
@@ -102,7 +107,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
        break;
 
      case 1:
-       ret = api_1(provider);
+       ret = api_4(provider);
        if (ret == -1) return 0;
        break;
 
@@ -113,36 +118,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
      case 3:
        ret = api_3(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 4:
-       ret = api_4(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 5:
-       ret = api_5(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 6:
-       ret = api_6(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 7:
-       ret = api_7(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 8:
-       ret = api_8(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 9:
-       ret = api_9(provider);
        if (ret == -1) return 0;
        break;
 
@@ -166,6 +141,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     free(_garbages);
   }
 
+  if (table[0] && table[1] && table[2] && table[3]) {
+	  for (int i = 0; i < 1000; i++)
+		  printf("@@@@@@");
+	  __builtin_trap();
+  }
+
   return 0;
 }
 
@@ -179,19 +160,20 @@ int api_0 (FuzzedDataProvider& provider) {
   DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_storage) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_storage *obj_0 = obj_storages[obj_0_idx];
+  blosc2_storage *obj_0 =(blosc2_storage*)malloc(sizeof(blosc2_storage));
   bool input_1 = provider.ConsumeBool();
 
   DEBUG_PRINT((" -- : obj_0_idx: %d, input_1: %d \n", obj_0_idx, input_1));
 
   // Prevent memory leaks (duplicated allocations)
-  if (0x0 !=(void*)obj_0) return -1;
+  //if (0x0 !=(void*)obj_0) return -1;
 
   DEBUG_PRINT(("DEBUG:\t\t blosc2_storage(Storages[%d], %d) \n", obj_0_idx, input_1));
   blosc2_storage storage = {.contiguous=input_1};
-  obj_0 = (blosc2_storage*)malloc(sizeof(blosc2_storage));
+  //obj_0 = (blosc2_storage*)malloc(sizeof(blosc2_storage));
   memcpy(obj_0, &storage, sizeof(blosc2_storage));
 
+  obj_storages[obj_0_idx] = obj_0;
   DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_storage) \n"));
   return 0;
 }
@@ -205,11 +187,12 @@ int api_1 (FuzzedDataProvider& provider) {
 
   DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
 
-  if (0x0 ==(void*)obj_0) return -1;
+  //if (0x0 ==(void*)obj_0) return -1;
 
   DEBUG_PRINT(("DEBUG:\t\t ~blosc2_storage(Storages[%d]) \n", obj_0_idx));
   free(obj_0);
-  obj_0 = 0x0;
+  //obj_0 = 0x0;
+  obj_storages[obj_0_idx] = 0x0;
 
   DEBUG_PRINT(("DEBUG:\t DONE (Desctructor : blosc2_storage) \n"));
   return 0;
@@ -266,8 +249,8 @@ int api_4 (FuzzedDataProvider& provider) {
   DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
 
   // Prevent memory leaks (duplicated allocations)
-  if (0x0 ==(void*)obj_0) return -1;
-  if (0x0 !=(void*)obj_1) return -1;
+  //if (0x0 ==(void*)obj_0) return -1;
+  //if (0x0 !=(void*)obj_1) return -1;
   
   DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk(Cframes[%d]) \n", obj_0_idx));
   obj_1 = blosc2_schunk_new(obj_0);
@@ -291,7 +274,8 @@ int api_5 (FuzzedDataProvider& provider) {
   
   DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
   free(obj_0);
-  obj_0 = 0x0;
+  //obj_0 = 0x0;
+  obj_schunks[obj_0_idx] = 0x0;
 
   DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
   return 0;

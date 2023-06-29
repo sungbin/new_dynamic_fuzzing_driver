@@ -48,3 +48,5 @@ if __name__ == '__main__':
     subprocess.run(['docker', 'kill', f'{project}'])
     subprocess.run(['docker', 'rm', f'{project}'])
 
+    subprocess.run(['cp', 'scripts/report_gfuzz.sh', f'{OUTPUT_DIR}'])
+
