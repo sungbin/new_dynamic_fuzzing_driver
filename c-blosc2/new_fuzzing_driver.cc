@@ -21,11 +21,11 @@
 # define DEBUG_PRINT_ARRAY(_arr, _size) do {} while (0)
 #endif
 
-#define MAX_API_SEQ_LEN 4
-#define DEFINED_API_BLOCK_N 4
-#define BANK_EACH_OBJ_LEN 2
+#define MAX_API_SEQ_LEN 20
+#define DEFINED_API_BLOCK_N 13
+#define BANK_EACH_OBJ_LEN 4
 
-int table[MAX_API_SEQ_LEN] = {0, };
+#define CHUNKSIZE (200 * 1000)
 
 typedef struct garbages {
     void *items[1000];
@@ -51,7 +51,7 @@ void assert_filled (void *obj) {
   }
 }
 
-blosc2_storage * obj_storages[BANK_EACH_OBJ_LEN];
+//blosc2_storage * obj_storages[BANK_EACH_OBJ_LEN];
 blosc2_schunk * obj_schunks[BANK_EACH_OBJ_LEN];
 blosc2_Cframe * obj_Cframes[BANK_EACH_OBJ_LEN];
 
@@ -65,6 +65,10 @@ int api_6 (FuzzedDataProvider& provider);
 int api_7 (FuzzedDataProvider& provider);
 int api_8 (FuzzedDataProvider& provider);
 int api_9 (FuzzedDataProvider& provider);
+int api_10 (FuzzedDataProvider& provider);
+int api_11 (FuzzedDataProvider& provider);
+int api_12 (FuzzedDataProvider& provider);
+int api_13 (FuzzedDataProvider& provider);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
@@ -79,7 +83,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     blosc2_init();
 
-    memset(obj_storages, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
+    //memset(obj_storages, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
     memset(obj_schunks, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
     memset(obj_Cframes, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
   
@@ -97,8 +101,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
      size_t selected = (size_t) provider.ConsumeIntegralInRange<uint8_t>(0, DEFINED_API_BLOCK_N);
      DEBUG_PRINT(("DEBUG: Selected API index %zu \n", selected));
 
-     if (i == selected) table[i] = 1;
-     
      int ret;
      switch (selected) {
      case 0:
@@ -107,7 +109,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
        break;
 
      case 1:
-       ret = api_4(provider);
+       ret = api_1(provider);
        if (ret == -1) return 0;
        break;
 
@@ -121,15 +123,67 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
        if (ret == -1) return 0;
        break;
 
+     case 4:
+       ret = api_4(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 5:
+       ret = api_5(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 6:
+       ret = api_6(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 7:
+       ret = api_7(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 8:
+       ret = api_8(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 9:
+       ret = api_9(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 10:
+       ret = api_10(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 11:
+       ret = api_11(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 12:
+       ret = api_12(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 13:
+       ret = api_13(provider);
+       if (ret == -1) return 0;
+       break;
+
      }
+
   }
 
   // Destruct vars for global scope
   {
     for (int i = 0; i < BANK_EACH_OBJ_LEN; i++) {
-      if (obj_storages[i] != 0x0) {
-        free(obj_storages[i]);
+      if (obj_schunks[i] != 0x0) {
         free(obj_schunks[i]);
+      }
+      if (obj_Cframes[i] != 0x0) {
         free(obj_Cframes[i]);
       }
     }
@@ -141,12 +195,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     free(_garbages);
   }
 
-  if (table[0] && table[1] && table[2] && table[3]) {
-	  for (int i = 0; i < 1000; i++)
-		  printf("@@@@@@");
-	  __builtin_trap();
-  }
-
   return 0;
 }
 
@@ -154,71 +202,28 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 // blosc2_schunk * obj_schunks[BANK_EACH_OBJ_LEN];
 // Cframe * obj_Cframes[BANK_EACH_OBJ_LEN];
 
-
-// Constructor : blosc2_storage
+// Constructor : Cframe
 int api_0 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_storage) "));
+  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : Cframe) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_storage *obj_0 =(blosc2_storage*)malloc(sizeof(blosc2_storage));
-  bool input_1 = provider.ConsumeBool();
+  //blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
 
-  DEBUG_PRINT((" -- : obj_0_idx: %d, input_1: %d \n", obj_0_idx, input_1));
+  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
 
   // Prevent memory leaks (duplicated allocations)
   //if (0x0 !=(void*)obj_0) return -1;
 
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_storage(Storages[%d], %d) \n", obj_0_idx, input_1));
-  blosc2_storage storage = {.contiguous=input_1};
-  //obj_0 = (blosc2_storage*)malloc(sizeof(blosc2_storage));
-  memcpy(obj_0, &storage, sizeof(blosc2_storage));
-
-  obj_storages[obj_0_idx] = obj_0;
-  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_storage) \n"));
-  return 0;
-}
-
-// Desctructor : blosc2_storage
-int api_1 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Desctructor : blosc2_storage) "));
-
-  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_storage *obj_0 = obj_storages[obj_0_idx];
-
-  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
-
-  //if (0x0 ==(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_storage(Storages[%d]) \n", obj_0_idx));
-  free(obj_0);
-  //obj_0 = 0x0;
-  obj_storages[obj_0_idx] = 0x0;
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Desctructor : blosc2_storage) \n"));
-  return 0;
-}
-
-// Constructor : Cframe
-int api_2 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : Cframe) "));
-
-  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
-
-  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
-
-  // Prevent memory leaks (duplicated allocations)
-  if (0x0 !=(void*)obj_0) return -1;
-
   DEBUG_PRINT(("DEBUG:\t\t Cframe(Cframes[%d]) \n", obj_0_idx));
-  obj_0 = (blosc2_Cframe*)malloc(sizeof(blosc2_Cframe));
+  obj_Cframes[obj_0_idx] = (blosc2_Cframe*)malloc(sizeof(blosc2_Cframe));
+  //obj_0 = (blosc2_Cframe*)malloc(sizeof(blosc2_Cframe));
 
   DEBUG_PRINT(("DEBUG:\t DONE (Constructor : Cframe) \n"));
   return 0;
 }
 
 // Destructor : Cframe
-int api_3 (FuzzedDataProvider& provider) {
+int api_1 (FuzzedDataProvider& provider) {
   DEBUG_PRINT(("DEBUG:\t RUN (Destructor : Cframe) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
@@ -226,158 +231,350 @@ int api_3 (FuzzedDataProvider& provider) {
 
   DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
 
-  if (0x0 ==(void*)obj_0) return -1;
+  //if (0x0 ==(void*)obj_0) return -1;
 
   DEBUG_PRINT(("DEBUG:\t\t ~Cframe(Cframes[%d]) \n", obj_0_idx));
   free(obj_0);
+  obj_Cframes[obj_0_idx] = 0x0;
 
   DEBUG_PRINT(("DEBUG:\t DONE (Destructor : Cframe) \n"));
   return 0;
 }
 
 
+
 // Constructor : blosc2_schunk
-int api_4 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_schunk) "));
+int api_2 (FuzzedDataProvider& provider) {
+  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_storage) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  blosc2_schunk *obj_0 =(blosc2_schunk*)malloc(sizeof(blosc2_storage));
+  bool input_1 = provider.ConsumeBool();
 
-  blosc2_storage *obj_0 = obj_storages[obj_0_idx];
-  blosc2_schunk *obj_1 = obj_schunks[obj_1_idx];
+  DEBUG_PRINT((" -- : obj_0_idx: %d, input_1: %d \n", obj_0_idx, input_1));
+  DEBUG_PRINT(("DEBUG:\t\t blosc2_storage(Storages[%d], %d) \n", obj_0_idx, input_1));
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
+  blosc2_storage *pstorage = (blosc2_storage*)malloc(sizeof(blosc2_storage));
+  blosc2_storage storage = {.contiguous=input_1};
+  memcpy(pstorage, &storage, sizeof(blosc2_storage));
 
-  // Prevent memory leaks (duplicated allocations)
-  //if (0x0 ==(void*)obj_0) return -1;
-  //if (0x0 !=(void*)obj_1) return -1;
-  
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk(Cframes[%d]) \n", obj_0_idx));
-  obj_1 = blosc2_schunk_new(obj_0);
+  obj_0 = blosc2_schunk_new(pstorage);
+  _garbages->items[_garbages->size] = pstorage;
+  _garbages->size ++;
 
-  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_schunk) \n"));
+  obj_schunks[obj_0_idx] = obj_0;
+  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_storage) \n"));
   return 0;
 }
 
 // Destructor : blosc2_schunk
-int api_5 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
+int api_3 (FuzzedDataProvider& provider) {
+  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_storage) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
+
+  //if (0x0 ==(void*)obj_0) return -1;
+
+  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_storage(blosc2_storages[%d]) \n", obj_0_idx));
+  free(obj_0);
+  obj_schunks[obj_0_idx] = 0x0;
+
+  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_storage) \n"));
+  return 0;
+}
+
+
+
+// blosc2_schunk_append_buffer (1)
+int api_4 (FuzzedDataProvider& provider) {
+  int nchunks = 0;
+
+  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  bool input_1 = provider.ConsumeBool();
 
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d \n", obj_0_idx));
-
-  // Prevent memory leaks (duplicated allocations)
-  if (0x0 ==(void*)obj_0) return -1;
-  
+  DEBUG_PRINT((" -- obj_0_idx: %d\n", obj_0_idx));
   DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
-  free(obj_0);
-  //obj_0 = 0x0;
-  obj_schunks[obj_0_idx] = 0x0;
+
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data = (int32_t*)malloc(isize);
+  int32_t *data_zeros = (int32_t*)calloc(CHUNKSIZE, sizeof(int32_t));
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    if (input_1 && nchunk >= 2) {
+      blosc2_schunk_append_buffer(obj_0, data_zeros, isize);
+    }
+    else {
+      for (int i = 0; i < CHUNKSIZE; i++) {
+        data[i] = i + nchunk * CHUNKSIZE;
+      }
+      blosc2_schunk_append_buffer(obj_0, data, isize);
+    }
+  }
+
+  _garbages->items[_garbages->size] = data;
+  _garbages->size ++;
+  _garbages->items[_garbages->size] = data_zeros;
+  _garbages->size ++;
 
   DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
   return 0;
 }
 
-// blosc2_schunk_append_buffer()
-int api_6 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_append_buffer() "));
+// blosc2_schunk_append_buffer (2)
+int api_5 (FuzzedDataProvider& provider) {
+  int nchunks = 1;
 
+  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int input_1_size = (int) provider.ConsumeIntegralInRange<uint8_t>(0, 200);
-  char *input_1 = (char*)malloc(sizeof(char)*input_1_size);
-  memcpy((void*)input_1, reinterpret_cast<void*>(provider.ConsumeBytes<uint8_t>(input_1_size).data()), input_1_size);
+  bool input_1 = provider.ConsumeBool();
 
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, input_1_size: %d - ", obj_0_idx, input_1_size));
-  DEBUG_PRINT_ARRAY(input_1, input_1_size);
+  DEBUG_PRINT((" -- obj_0_idx: %d\n", obj_0_idx));
+  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
 
-  if (0x0 ==(void*)obj_0) return -1;
-  
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_append_buffer(Schunks[%d], Array) \n", obj_0_idx));
-  blosc2_schunk_append_buffer(obj_0, input_1, input_1_size);
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data = (int32_t*)malloc(isize);
+  int32_t *data_zeros = (int32_t*)calloc(CHUNKSIZE, sizeof(int32_t));
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    if (input_1 && nchunk >= 2) {
+      blosc2_schunk_append_buffer(obj_0, data_zeros, isize);
+    }
+    else {
+      for (int i = 0; i < CHUNKSIZE; i++) {
+        data[i] = i + nchunk * CHUNKSIZE;
+      }
+      blosc2_schunk_append_buffer(obj_0, data, isize);
+    }
+  }
 
-  _garbages->items[_garbages->size] = input_1;
-  _garbages->size++;
+  _garbages->items[_garbages->size] = data;
+  _garbages->size ++;
+  _garbages->items[_garbages->size] = data_zeros;
+  _garbages->size ++;
 
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_append_buffer() \n"));
+  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
   return 0;
 }
 
-// blosc2_schunk_to_buffer()
-int api_7 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_buffer() "));
+// blosc2_schunk_append_buffer (3)
+int api_6 (FuzzedDataProvider& provider) {
+  int nchunks = 5;
 
+  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  bool input_1 = provider.ConsumeBool();
+
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  DEBUG_PRINT((" -- obj_0_idx: %d\n", obj_0_idx));
+  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
+
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data = (int32_t*)malloc(isize);
+  int32_t *data_zeros = (int32_t*)calloc(CHUNKSIZE, sizeof(int32_t));
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    if (input_1 && nchunk >= 2) {
+      blosc2_schunk_append_buffer(obj_0, data_zeros, isize);
+    }
+    else {
+      for (int i = 0; i < CHUNKSIZE; i++) {
+        data[i] = i + nchunk * CHUNKSIZE;
+      }
+      blosc2_schunk_append_buffer(obj_0, data, isize);
+    }
+  }
+
+  _garbages->items[_garbages->size] = data;
+  _garbages->size ++;
+  _garbages->items[_garbages->size] = data_zeros;
+  _garbages->size ++;
+
+  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
+  return 0;
+}
+
+// blosc2_schunk_append_buffer (4)
+int api_7 (FuzzedDataProvider& provider) {
+  int nchunks = 10;
+
+  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  bool input_1 = provider.ConsumeBool();
+
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  DEBUG_PRINT((" -- obj_0_idx: %d\n", obj_0_idx));
+  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
+
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data = (int32_t*)malloc(isize);
+  int32_t *data_zeros = (int32_t*)calloc(CHUNKSIZE, sizeof(int32_t));
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    if (input_1 && nchunk >= 2) {
+      blosc2_schunk_append_buffer(obj_0, data_zeros, isize);
+    }
+    else {
+      for (int i = 0; i < CHUNKSIZE; i++) {
+        data[i] = i + nchunk * CHUNKSIZE;
+      }
+      blosc2_schunk_append_buffer(obj_0, data, isize);
+    }
+  }
+
+  _garbages->items[_garbages->size] = data;
+  _garbages->size ++;
+  _garbages->items[_garbages->size] = data_zeros;
+  _garbages->size ++;
+
+  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
+  return 0;
+}
+//
+  //  //  //
+  //  
+  /*
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
   int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
 
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
-  blosc2_Cframe *obj_1 = obj_Cframes[obj_0_idx];
+  Cframe *obj_1 = obj_Cframe[obj_1_idx];
+  */
+
+// blosc2_schunk_to_buffer()
+int api_8 (FuzzedDataProvider& provider) {
+  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_append_buffer() "));
+
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  bool input_2 = provider.ConsumeBool();
+
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+  blosc2_Cframe *obj_1 = obj_Cframes[obj_1_idx];
 
   DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
-
-  if (0x0 ==(void*)obj_0) return -1;
-  if (0x0 ==(void*)obj_1) return -1;
-  
   DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_to_buffer(Schunks[%d], Cframes[%d]) \n", obj_0_idx, obj_1_idx));
+
   bool cframe_needs_free;
-  int64_t length = blosc2_schunk_to_buffer(obj_0, &(obj_1->cframe), &cframe_needs_free);
+  obj_1->len = blosc2_schunk_to_buffer(obj_0, &(obj_1->cframe), &cframe_needs_free);
   if (cframe_needs_free) {
       _garbages->items[_garbages->size]=obj_1->cframe;
       _garbages->size++;
   }
 
-  obj_1->len = length;
+  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_append_buffer() \n"));
+  return 0;
+}
 
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_buffer() \n"));
+// blosc2_schunk_from_buffer()
+int api_9 (FuzzedDataProvider& provider) {
+  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_from_buffer() "));
+
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
+  bool input_1 = provider.ConsumeBool();
+
+  blosc2_schunk* schunk;
+  blosc2_schunk* schunk2 = blosc2_schunk_from_buffer(obj_0->cframe, obj_0->len, input_1);
+
+  if (! input_1) {
+    blosc2_schunk_to_file(schunk2, "test_file.b2frame");
+  }
+
+  if (! input_1) {
+    blosc2_schunk_free(schunk2);
+    schunk = blosc2_schunk_open("test_file.b2frame");
+  }
+  else {
+    schunk = schunk2;
+  }
+  blosc2_schunk_free(schunk);
+  
+  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_from_buffer() \n"));
   return 0;
 }
 
 // blosc2_schunk_to_file(), blosc2_schunk_open()
-int api_8 (FuzzedDataProvider& provider) {
+int api_10 (FuzzedDataProvider& provider) {
+  int nchunks = 0;
   DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_file(), blosc2_schunk_open() "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  // obj_0_idx can be equal with obj_1_idx
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
-  blosc2_schunk *obj_1 = obj_schunks[obj_1_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data_dest = (int32_t*)malloc(isize);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++)
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
 
-  if (0x0 ==(void*)obj_0) return -1;
-  if (0x0 !=(void*)obj_1) return -1;
-  
-  DEBUG_PRINT(("DEBUG:\t\t merged(Schunks[%d], Schunks[%d]) \n", obj_0_idx, obj_1_idx));
-  blosc2_schunk_to_file(obj_0, ".test_file.b2frame");
-  obj_1 = blosc2_schunk_open(".test_file.b2frame");
-  remove(".test_file.b2frame");
+  _garbages->items[_garbages->size]=data_dest;
+  _garbages->size++;
 
   DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_file(), blosc2_schunk_open() \n"));
   return 0;
 }
 
-
-// blosc2_schunk_decompress_chunk()
-int api_9 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_decompress_chunk() "));
+// blosc2_schunk_to_file(), blosc2_schunk_open()
+int api_11 (FuzzedDataProvider& provider) {
+  int nchunks = 1;
+  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_file(), blosc2_schunk_open() "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int input_1 = (int) provider.ConsumeIntegralInRange<uint8_t>(0, 200);
-
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, input_1_size: %d - ", obj_0_idx, 200));
-  if (0x0 ==(void*)obj_0) return -1;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data_dest = (int32_t*)malloc(isize);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++)
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
 
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_decompress_chunk(Schunks[%d]) \n", obj_0_idx));
-  char buf[1000];
-  blosc2_schunk_decompress_chunk(obj_0, input_1, buf, 1000);
+  _garbages->items[_garbages->size]=data_dest;
+  _garbages->size++;
 
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_decompress_chunk() \n"));
+  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_file(), blosc2_schunk_open() \n"));
+  return 0;
+}
+
+// blosc2_schunk_to_file(), blosc2_schunk_open()
+int api_12 (FuzzedDataProvider& provider) {
+  int nchunks = 5;
+  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_file(), blosc2_schunk_open() "));
+
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data_dest = (int32_t*)malloc(isize);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++)
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
+
+  _garbages->items[_garbages->size]=data_dest;
+  _garbages->size++;
+
+  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_file(), blosc2_schunk_open() \n"));
+  return 0;
+}
+
+// blosc2_schunk_to_file(), blosc2_schunk_open()
+int api_13 (FuzzedDataProvider& provider) {
+  int nchunks = 10;
+  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_file(), blosc2_schunk_open() "));
+
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t *data_dest = (int32_t*)malloc(isize);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++)
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
+
+  _garbages->items[_garbages->size]=data_dest;
+  _garbages->size++;
+
+  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_file(), blosc2_schunk_open() \n"));
   return 0;
 }
