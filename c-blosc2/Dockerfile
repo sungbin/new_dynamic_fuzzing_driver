@@ -59,3 +59,6 @@ RUN cd ../build_cov && \
 COPY c-blosc2/scripts/run_on_debug_mode.sh /new_fuzzing_driver/c-blosc2/build/run_on_debug_mode.sh 
 
 COPY c-blosc2/tests /new_fuzzing_driver/c-blosc2/driver_tests
+
+COPY c-blosc2/scripts/debug.sh /new_fuzzing_driver/c-blosc2/build/debug.sh
+COPY c-blosc2/scripts/bytes_writer.py /new_fuzzing_driver/c-blosc2/build/bytes_writer.py
