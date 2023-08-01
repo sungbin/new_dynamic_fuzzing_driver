@@ -6,26 +6,24 @@
 
 #ifdef DEBUG
 # define DEBUG_PRINT(x) printf x; \
-	fflush(stdout)
+        fflush(stdout)
 #else
-# define DEBUG_PRINT(x) do {} while (0)
+#define DEBUG_PRINT(x) do {} while (0)
 #endif
 
 #ifdef DEBUG
-# define DEBUG_PRINT_ARRAY(_arr, _size) \
-	printf("["); \
-	for (int i = 0; i < _size; i++) \
-	    printf("%d ", _arr[i]); \
-	printf("\b]\n")
+#define DEBUG_PRINT_ARRAY(_arr, _size) \
+        printf("["); \
+        for (int i = 0; i < _size; i++) \
+            printf("%d ", _arr[i]); \
+        printf("\b]\n")
 #else
 # define DEBUG_PRINT_ARRAY(_arr, _size) do {} while (0)
 #endif
 
-#define MAX_API_SEQ_LEN 9
-#define DEFINED_API_BLOCK_N 11
-#define BANK_EACH_OBJ_LEN 4
-
-int table[MAX_API_SEQ_LEN] = {0, };
+#define MAX_API_SEQ_LEN 12
+#define DEFINED_API_BLOCK_N 36
+#define BANK_EACH_OBJ_LEN 3
 
 typedef struct garbages {
     void *items[1000];
@@ -34,17 +32,12 @@ typedef struct garbages {
 
 garbages *_garbages;
 
-typedef struct blosc2_Cframe {
-    uint8_t *cframe;
-    long len;
-} blosc2_Cframe;
 
-blosc2_storage * obj_storages[BANK_EACH_OBJ_LEN];
 blosc2_schunk * obj_schunks[BANK_EACH_OBJ_LEN];
-blosc2_Cframe * obj_Cframes[BANK_EACH_OBJ_LEN];
 
-int api_0 (FuzzedDataProvider& provider);
-int api_1 (FuzzedDataProvider& provider);
+int init_0 ();
+int init_1 ();
+
 int api_2 (FuzzedDataProvider& provider);
 int api_3 (FuzzedDataProvider& provider);
 int api_4 (FuzzedDataProvider& provider);
@@ -54,6 +47,36 @@ int api_7 (FuzzedDataProvider& provider);
 int api_8 (FuzzedDataProvider& provider);
 int api_9 (FuzzedDataProvider& provider);
 int api_10 (FuzzedDataProvider& provider);
+int api_11 (FuzzedDataProvider& provider);
+int api_12 (FuzzedDataProvider& provider);
+int api_13 (FuzzedDataProvider& provider);
+int api_14 (FuzzedDataProvider& provider);
+int api_15 (FuzzedDataProvider& provider);
+int api_16 (FuzzedDataProvider& provider);
+int api_17 (FuzzedDataProvider& provider);
+int api_18 (FuzzedDataProvider& provider);
+int api_19 (FuzzedDataProvider& provider);
+int api_20 (FuzzedDataProvider& provider);
+int api_21 (FuzzedDataProvider& provider);
+int api_22 (FuzzedDataProvider& provider);
+int api_23 (FuzzedDataProvider& provider);
+int api_24 (FuzzedDataProvider& provider);
+int api_25 (FuzzedDataProvider& provider);
+int api_26 (FuzzedDataProvider& provider);
+int api_27 (FuzzedDataProvider& provider);
+int api_28 (FuzzedDataProvider& provider);
+int api_29 (FuzzedDataProvider& provider);
+int api_30 (FuzzedDataProvider& provider);
+int api_31 (FuzzedDataProvider& provider);
+int api_32 (FuzzedDataProvider& provider);
+int api_33 (FuzzedDataProvider& provider);
+int api_34 (FuzzedDataProvider& provider);
+int api_35 (FuzzedDataProvider& provider);
+int api_36 (FuzzedDataProvider& provider);
+int api_37 (FuzzedDataProvider& provider);
+
+#define CHUNKSIZE (200 * 1000)
+#define NTHREADS (2)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
@@ -68,10 +91,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     blosc2_init();
 
-    memset(obj_storages, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
     memset(obj_schunks, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
-    memset(obj_Cframes, 0, sizeof(void*) * BANK_EACH_OBJ_LEN);
-  
+
   }
   FuzzedDataProvider provider(data, size);
 
@@ -80,26 +101,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   //size_t api_seq_len = 4;
   DEBUG_PRINT(("DEBUG: API sequence length: %zu \n", api_seq_len));
 
-  
+  init_0(); // obj_schunks[0] <- (urlpath="dir.b2frame")
+  init_1(); // obj_schunks[1] <- (urlpath="dir.b2frame/")
+
   for (int i = 0; i < api_seq_len; i++) {
 
-     size_t selected = (size_t) provider.ConsumeIntegralInRange<uint8_t>(0, DEFINED_API_BLOCK_N);
+     size_t selected = (size_t) provider.ConsumeIntegralInRange<uint8_t>(0, DEFINED_API_BLOCK_N) + 2;
      DEBUG_PRINT(("DEBUG: Selected API index %zu \n", selected));
 
-     if (i == selected) table[i] = 1;
-     
      int ret;
      switch (selected) {
-     case 0:
-       ret = api_0(provider);
-       if (ret == -1) return 0;
-       break;
-
-     case 1:
-       ret = api_1(provider);
-       if (ret == -1) return 0;
-       break;
-
      case 2:
        ret = api_2(provider);
        if (ret == -1) return 0;
@@ -144,272 +155,786 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
        ret = api_10(provider);
        if (ret == -1) return 0;
        break;
-     }
 
+     case 11:
+       ret = api_11(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 12:
+       ret = api_12(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 13:
+       ret = api_13(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 14:
+       ret = api_14(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 15:
+       ret = api_15(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 16:
+       ret = api_16(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 17:
+       ret = api_17(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 18:
+       ret = api_18(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 19:
+       ret = api_19(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 20:
+       ret = api_20(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 21:
+       ret = api_21(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 22:
+       ret = api_22(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 23:
+       ret = api_23(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 24:
+       ret = api_24(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 25:
+       ret = api_25(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 26:
+       ret = api_26(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 27:
+       ret = api_27(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 28:
+       ret = api_28(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 29:
+       ret = api_29(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 30:
+       ret = api_30(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 31:
+       ret = api_31(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 32:
+       ret = api_32(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 33:
+       ret = api_33(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 34:
+       ret = api_34(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 35:
+       ret = api_35(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 36:
+       ret = api_36(provider);
+       if (ret == -1) return 0;
+       break;
+
+     case 37:
+       ret = api_37(provider);
+       if (ret == -1) return 0;
+       break;
+     }
   }
 
-  // Destruct vars for global scope
+// Destruct vars for global scope
   {
     for (int i = 0; i < BANK_EACH_OBJ_LEN; i++) {
-      if (obj_storages[i] != 0x0) {
-        free(obj_storages[i]);
         free(obj_schunks[i]);
-        free(obj_Cframes[i]);
-      }
     }
 
     blosc2_destroy();
 
     for (int i = 0; i < _garbages->size; i++)
-      free(_garbages->items[i]);
+        free(_garbages->items[i]);
     free(_garbages);
   }
 
   return 0;
 }
 
+//blosc2_schunk * obj_schunks[BANK_EACH_OBJ_LEN];
+int init_0 () {
+    char *directory = "dir1.b2frame";
+    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+    blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;            
+    cparams.typesize = sizeof(int32_t);
+    cparams.clevel = 9;
+    cparams.nthreads = NTHREADS;
+    dparams.nthreads = NTHREADS;
+    blosc2_storage storage = {.contiguous=false, .urlpath=directory, .cparams=&cparams, .dparams=&dparams};
+    blosc2_remove_dir(storage.urlpath);
 
-// Constructor : blosc2_storage
-int api_0 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_storage) "));
-
-  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_storage *obj_0 =(blosc2_storage*)malloc(sizeof(blosc2_storage));
-  bool input_1 = provider.ConsumeBool();
-
-  DEBUG_PRINT((" -- : obj_0_idx: %d, input_1: %d \n", obj_0_idx, input_1));
-
-  // Prevent memory leaks (duplicated allocations)
-  //if (0x0 !=(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_storage(Storages[%d], %d) \n", obj_0_idx, input_1));
-  blosc2_storage storage = {.contiguous=input_1};
-  //obj_0 = (blosc2_storage*)malloc(sizeof(blosc2_storage));
-  memcpy(obj_0, &storage, sizeof(blosc2_storage));
-
-  obj_storages[obj_0_idx] = obj_0;
-  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_storage) \n"));
-  return 0;
+    obj_schunks[0] = blosc2_schunk_new(&storage);
 }
 
-// Desctructor : blosc2_storage
-int api_1 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Desctructor : blosc2_storage) "));
+int init_1 () {
+    char *directory = "dir1.b2frame/";
+    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+    blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;            
+    cparams.typesize = sizeof(int32_t);
+    cparams.clevel = 9;
+    cparams.nthreads = NTHREADS;
+    dparams.nthreads = NTHREADS;
+    blosc2_storage storage = {.contiguous=false, .urlpath=directory, .cparams=&cparams, .dparams=&dparams};
+    blosc2_remove_dir(storage.urlpath);
 
-  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_storage *obj_0 = obj_storages[obj_0_idx];
-
-  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
-
-  //if (0x0 ==(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_storage(Storages[%d]) \n", obj_0_idx));
-  free(obj_0);
-  //obj_0 = 0x0;
-  obj_storages[obj_0_idx] = 0x0;
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Desctructor : blosc2_storage) \n"));
-  return 0;
+    obj_schunks[0] = blosc2_schunk_new(&storage);
 }
 
-// Constructor : Cframe
+//  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+//  DEBUG_PRINT_ARRAY(input_1, input_1_size);
+
 int api_2 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : Cframe) "));
 
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  //blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
+  int nchunks = 0;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    int64_t _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
 
-  // Prevent memory leaks (duplicated allocations)
-  //if (0x0 !=(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t Cframe(Cframes[%d]) \n", obj_0_idx));
-  obj_Cframes[obj_0_idx] = (blosc2_Cframe*)malloc(sizeof(blosc2_Cframe));
-  //obj_0 = (blosc2_Cframe*)malloc(sizeof(blosc2_Cframe));
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : Cframe) \n"));
   return 0;
 }
 
-// Destructor : Cframe
+
 int api_3 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : Cframe) "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- : obj_0_idx: %d \n", obj_0_idx));
+  int nchunks = 1;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    int64_t _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
 
-  //if (0x0 ==(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t ~Cframe(Cframes[%d]) \n", obj_0_idx));
-  free(obj_0);
-  obj_Cframes[obj_0_idx] = 0x0;
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : Cframe) \n"));
   return 0;
 }
 
-
-// Constructor : blosc2_schunk
 int api_4 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Constructor : blosc2_schunk) "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  blosc2_storage *obj_0 = obj_storages[obj_0_idx];
-  //blosc2_schunk *obj_1 = obj_schunks[obj_1_idx];
+  int nchunks = 2;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    int64_t _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
-
-  // Prevent memory leaks (duplicated allocations)
-  //if (0x0 ==(void*)obj_0) return -1;
-  //if (0x0 !=(void*)obj_1) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk(Cframes[%d]) \n", obj_0_idx));
-  obj_schunks[obj_1_idx] = blosc2_schunk_new(obj_0);
-  //obj_1 = blosc2_schunk_new(obj_0);
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Constructor : blosc2_schunk) \n"));
   return 0;
 }
 
-// Destructor : blosc2_schunk
 int api_5 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN (Destructor : blosc2_schunk) "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d \n", obj_0_idx));
+  int nchunks = 10;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    int64_t _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
 
-  // Prevent memory leaks (duplicated allocations)
-  //if (0x0 ==(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t ~blosc2_schunk(Schunks[%d]) \n", obj_0_idx));
-  free(obj_0);
-  //obj_0 = 0x0;
-  obj_schunks[obj_0_idx] = 0x0;
-
-  DEBUG_PRINT(("DEBUG:\t DONE (Destructor : blosc2_schunk) \n"));
   return 0;
 }
 
-// blosc2_schunk_append_buffer()
 int api_6 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_append_buffer() "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int input_1_size = (int) provider.ConsumeIntegralInRange<uint8_t>(0, 200);
-  char *input_1 = (char*)malloc(sizeof(char)*input_1_size);
-  memcpy((void*)input_1, reinterpret_cast<void*>(provider.ConsumeBytes<uint8_t>(input_1_size).data()), input_1_size);
-
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, input_1_size: %d - ", obj_0_idx, input_1_size));
-  DEBUG_PRINT_ARRAY(input_1, input_1_size);
+  int nchunks = 1;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  for (int nchunk = nchunks-1; nchunk >= 0; nchunk--) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, data_dest, isize);
+  }
 
-  //if (0x0 ==(void*)obj_0) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_append_buffer(Schunks[%d], Array) \n", obj_0_idx));
-  blosc2_schunk_append_buffer(obj_0, input_1, input_1_size);
-
-  _garbages->items[_garbages->size] = input_1;
-  _garbages->size++;
-
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_append_buffer() \n"));
   return 0;
 }
 
-// blosc2_schunk_to_buffer()
 int api_7 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_buffer() "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
-  blosc2_Cframe *obj_1 = obj_Cframes[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
-
-  //if (0x0 ==(void*)obj_0) return -1;
-  //if (0x0 ==(void*)obj_1) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_to_buffer(Schunks[%d], Cframes[%d]) \n", obj_0_idx, obj_1_idx));
-  bool cframe_needs_free;
-  int64_t length = blosc2_schunk_to_buffer(obj_0, &(obj_1->cframe), &cframe_needs_free);
-  if (cframe_needs_free) {
-      _garbages->items[_garbages->size]=obj_1->cframe;
-      _garbages->size++;
+  int nchunks = 10;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  for (int nchunk = nchunks-1; nchunk >= 0; nchunk--) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, data_dest, isize);
   }
 
-  obj_1->len = length;
-
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_buffer() \n"));
   return 0;
 }
 
-// blosc2_schunk_to_file(), blosc2_schunk_open()
 int api_8 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_to_file(), blosc2_schunk_open() "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  // obj_0_idx can be equal with obj_1_idx
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, obj_1_idx: %d \n", obj_0_idx, obj_1_idx));
+  int nchunks = 10;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  blosc2_schunk_decompress_chunk(obj_0, 1, data_dest, isize);
 
-  //if (0x0 ==(void*)obj_0) return -1;
-  //if (0x0 !=(void*)obj_1) return -1;
-
-  DEBUG_PRINT(("DEBUG:\t\t merged(Schunks[%d], Schunks[%d]) \n", obj_0_idx, obj_1_idx));
-  blosc2_schunk_to_file(obj_0, ".test_file.b2frame");
-  obj_schunks[obj_1_idx] = blosc2_schunk_open(".test_file.b2frame");
-  remove(".test_file.b2frame");
-
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_to_file(), blosc2_schunk_open() \n"));
   return 0;
 }
 
-
-// blosc2_schunk_decompress_chunk()
 int api_9 (FuzzedDataProvider& provider) {
-  DEBUG_PRINT(("DEBUG:\t RUN blosc2_schunk_decompress_chunk() "));
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int input_1 = (int) provider.ConsumeIntegralInRange<uint8_t>(0, 200);
-
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
   blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
 
-  DEBUG_PRINT((" -- obj_0_idx: %d, input_1_size: %d - ", obj_0_idx, 200));
-  //if (0x0 ==(void*)obj_0) return -1;
+  blosc2_schunk_free(obj_0);
 
-  DEBUG_PRINT(("DEBUG:\t\t blosc2_schunk_decompress_chunk(Schunks[%d]) \n", obj_0_idx));
-  char buf[1000];
-  blosc2_schunk_decompress_chunk(obj_0, input_1, buf, 1000);
-
-  DEBUG_PRINT(("DEBUG:\t DONE blosc2_schunk_decompress_chunk() \n"));
   return 0;
 }
 
-//blosc2_schunk_from_buffer
 int api_10 (FuzzedDataProvider& provider) {
-
   int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  int obj_1_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
-  blosc2_Cframe *obj_0 = obj_Cframes[obj_0_idx];
-  bool input_2 = provider.ConsumeBool();
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
 
-  obj_schunks[obj_1_idx] = blosc2_schunk_from_buffer(obj_0->cframe, obj_0->len, input_2);
-  if (input_2) {
-    _garbages->items[_garbages->size]=obj_0->cframe;
-    _garbages->size++;
+  char *directory = "dir1.b2frame";
+  blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+  blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
+
+  cparams.typesize = 7;
+  cparams.clevel = 9;
+  cparams.nthreads = NTHREADS;
+  dparams.nthreads = NTHREADS;
+  blosc2_storage storage = {.contiguous=false, .urlpath=directory, .cparams=&cparams, .dparams=&dparams};
+  blosc2_remove_dir(storage.urlpath);
+  obj_schunks[obj_0_idx] = blosc2_schunk_new(&storage);
+
+  return 0;
+}
+
+int api_11 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 1;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    blosc2_schunk_append_buffer(obj_0, data, isize);
   }
 
+  return 0;
+}
+
+int api_12 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 10;
+  int32_t data[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk;
+    }
+    blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
+
+  return 0;
+}
+
+int api_13 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 1;
+  int32_t data_dest[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+
+  for (int nchunk = nchunks-1; nchunk >= 0; nchunk--) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, data_dest, isize);
+  }
+
+  return 0;
+}
+
+int api_14 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 10;
+  int32_t data_dest[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+
+  for (int nchunk = nchunks-1; nchunk >= 0; nchunk--) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, data_dest, isize);
+  }
+
+  return 0;
+}
+
+int api_15 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int32_t data_dest[CHUNKSIZE];
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+
+  blosc2_schunk_decompress_chunk(obj_0, 1, data_dest, isize);
+
+  return 0;
+}
+
+int api_16 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  blosc2_schunk_free(obj_0);
+
+  return 0;
+}
+
+int api_17 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+
+  char *directory = "test_sframe.b2frame";
+
+  blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+  blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
+  if (provider.ConsumeBool()) {
+    cparams.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_DELTA;
+    cparams.filters_meta[BLOSC2_MAX_FILTERS - 2] = 0;
+  }
+  cparams.typesize = sizeof(int32_t);
+  if (provider.ConsumeBool()) {
+    cparams.compcode = BLOSC_BLOSCLZ;
+  } else {
+    cparams.compcode = BLOSC_LZ4;
+  }
+  if (provider.ConsumeBool()) {
+    cparams.nthreads = NTHREADS;
+    dparams.nthreads = NTHREADS;
+  }
+  else {
+    cparams.nthreads = 1;
+    dparams.nthreads = 1;
+  }
+  blosc2_storage storage = {.contiguous=false, .urlpath=directory, .cparams=&cparams, .dparams=&dparams};
+
+  blosc2_remove_dir(storage.urlpath);
+  obj_schunks[obj_0_idx] = blosc2_schunk_new(&storage);
+
+  return 0;
+}
+
+int api_18 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+
+  char *directory = "test_sframe.b2frame/";
+
+  blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+  blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
+  if (provider.ConsumeBool()) {
+    cparams.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_DELTA;
+    cparams.filters_meta[BLOSC2_MAX_FILTERS - 2] = 0;
+  }
+  cparams.typesize = sizeof(int32_t);
+  if (provider.ConsumeBool()) {
+    cparams.compcode = BLOSC_BLOSCLZ;
+  } else {
+    cparams.compcode = BLOSC_LZ4;
+  }
+  if (provider.ConsumeBool()) {
+    cparams.nthreads = NTHREADS;
+    dparams.nthreads = NTHREADS;
+  }
+  else {
+    cparams.nthreads = 1;
+    dparams.nthreads = 1;
+  }
+  blosc2_storage storage = {.contiguous=false, .urlpath=directory, .cparams=&cparams, .dparams=&dparams};
+
+  blosc2_remove_dir(storage.urlpath);
+  obj_schunks[obj_0_idx] = blosc2_schunk_new(&storage);
+
+  return 0;
+}
+
+int api_19 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  blosc2_meta_add(obj_0, "metalayer1", (uint8_t *) "my metalayer1", sizeof("my metalayer1"));
+  blosc2_meta_add(obj_0, "metalayer2", (uint8_t *) "my metalayer1", sizeof("my metalayer1"));
+
+  return 0;
+}
+
+int api_20 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  char* content = "This is a pretty long string with a good number of chars";   
+  char* content2 = "This is a pretty long string with a good number of chars; longer than content";
+
+  blosc2_vlmeta_add(obj_0, "vlmetalayer", (uint8_t *) content, (int32_t) strlen(content), NULL);
+  blosc2_vlmeta_add(obj_0, "vlmetalayer2", (uint8_t *) content2, (int32_t) strlen(content2), NULL);
+ 
+  return 0;
+}
+
+int api_21 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  char *directory = "test_sframe.b2frame";
+
+  blosc2_schunk_free(obj_0);
+  obj_schunks[obj_0_idx] = blosc2_schunk_open(directory);
+ 
+  return 0;
+}
+
+int api_22 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  char *directory = "test_sframe.b2frame/";
+
+  blosc2_schunk_free(obj_0);
+  obj_schunks[obj_0_idx] = blosc2_schunk_open(directory);
+ 
+  return 0;
+}
+
+int api_23 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  uint8_t* _content;
+  int32_t _content_len;
+  blosc2_meta_get(obj_0, "metalayer1", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+  blosc2_meta_get(obj_0, "metalayer2", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+ 
+  return 0;
+}
+
+int api_24 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+
+  uint8_t* content_;
+  int32_t content_len_;
+  blosc2_vlmeta_get(obj_0, "vlmetalayer", &content_, &content_len_);
+  char* content2 = "This is a pretty long string with a good number of chars; longer than content";
+
+  free(content_);
+  blosc2_vlmeta_update(obj_0, "vlmetalayer", (uint8_t *) content2, (int32_t) strlen(content2), NULL);
+ 
+  return 0;
+}
+
+int api_25 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 1;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data[CHUNKSIZE];
+  int64_t _nchunks = 0;
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk * CHUNKSIZE;
+    }
+    _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
+ 
+  return 0;
+}
+
+int api_26 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 2;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data[CHUNKSIZE];
+  int64_t _nchunks = 0;
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk * CHUNKSIZE;
+    }
+    _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
+ 
+  return 0;
+}
+
+int api_27 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 10;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data[CHUNKSIZE];
+  int64_t _nchunks = 0;
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    for (int i = 0; i < CHUNKSIZE; i++) {
+      data[i] = i + nchunk * CHUNKSIZE;
+    }
+    _nchunks = blosc2_schunk_append_buffer(obj_0, data, isize);
+  }
+ 
+  return 0;
+}
+
+int api_28 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  uint8_t* _content;
+  int32_t _content_len;
+  blosc2_meta_get(obj_0, "metalayer1", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+  blosc2_meta_get(obj_0, "metalayer2", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+  blosc2_meta_update(obj_0, "metalayer2", (uint8_t *) "my metalayer2", sizeof("my metalayer2")); 
+
+  return 0;
+}
+
+int api_29 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  uint8_t* content_;
+  int32_t content_len_;
+  char* content3 = "This is a short string, and shorter than content";
+  size_t content_len3 = strlen(content3);
+  blosc2_vlmeta_get(obj_0, "vlmetalayer", &content_, &content_len_);
+  free(content_);
+  blosc2_vlmeta_update(obj_0, "vlmetalayer", (uint8_t *) content3, (int32_t) content_len3, NULL);
+
+  return 0;
+}
+
+int api_30 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  char *directory = "test_sframe.b2frame";
+  blosc2_schunk_free(obj_0);
+  obj_schunks[obj_0_idx] = blosc2_schunk_open(directory);
+
+  return 0;
+}
+
+int api_31 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  char *directory = "test_sframe.b2frame/";
+  blosc2_schunk_free(obj_0);
+  obj_schunks[obj_0_idx] = blosc2_schunk_open(directory);
+
+  return 0;
+}
+
+int api_32 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 1;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
+  }
+
+  return 0;
+}
+
+int api_33 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 2;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
+  }
+
+  return 0;
+}
+
+int api_34 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  int nchunks = 10;
+  int32_t isize = CHUNKSIZE * sizeof(int32_t);
+  int32_t data_dest[CHUNKSIZE];
+  for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+    blosc2_schunk_decompress_chunk(obj_0, nchunk, (void *) data_dest, isize);
+  }
+
+  return 0;
+}
+
+int api_35 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  uint8_t* _content;
+  int32_t _content_len;
+  blosc2_meta_get(obj_0, "metalayer1", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+  blosc2_meta_get(obj_0, "metalayer2", &_content, &_content_len);
+  if (_content != NULL) {
+    free(_content);
+  }
+
+  return 0;
+}
+
+int api_36 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  uint8_t* content_;
+  int32_t content_len_;
+  blosc2_vlmeta_get(obj_0, "vlmetalayer", &content_, &content_len_);
+  free(content_);
+
+  return 0;
+}
+
+int api_37 (FuzzedDataProvider& provider) {
+  int obj_0_idx = (int) provider.ConsumeIntegralInRange<uint8_t>(0, BANK_EACH_OBJ_LEN);
+  DEBUG_PRINT(("uint8_t: %d\n", obj_0_idx));
+  blosc2_schunk *obj_0 = obj_schunks[obj_0_idx];
+
+  blosc2_schunk_free(obj_0);
+
+  return 0;
 }
